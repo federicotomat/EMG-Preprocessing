@@ -68,13 +68,15 @@ for i = 1:size(EMG_Test, 2)
     subplot(2,2,[3 4]); 
     yyaxis left
     xlabel('Time (s)'); 
-    plot(EMG{i}, 'r');
+    plot(EMG{i}, 'LineWidth', 1.5);
+    ylim([-50 130])
     ylabel('EMG (\muV)');
     hold on
-        yyaxis right
-        ylabel('Acceleration (m/s^2)')
-        xlabel('Time(s)'); 
-        plot(EMG_ResultantAcc{i}, 'b');
+    yyaxis right
+    ylabel('Acceleration (m/s^2)')
+    xlabel('Time(s)'); 
+    plot(EMG_ResultantAcc{i}, 'b');
+    ylim([0 4])
     hold off
     legend('Linear envelope', 'Acceleration'); 
     
