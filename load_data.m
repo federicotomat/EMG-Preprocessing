@@ -12,13 +12,13 @@ EMG_Acceleration = {Test1{1}.matrix(:,3:5) Test1{1}.matrix(:,5:end) Test2{1}.mat
 
 Fs = 2000; % Sampling Frequency 
 Ts = 1/Fs; % Sampling Interval 
-dFs = 1000; % Down sampled Frequency
-dsFactor = Fs / dFs; % Down sampling factor
+dFs = 900; % Down sampled Frequency
+dsFactor = round(Fs / dFs); % Down sampling factor
 Fnyq = Fs/2; % Nyquist Frequency
 Freq1 = 30; % Passband Frequency, Hz (Lower)
 Freq2 = 450; % Passband Frequency, Hz (Upper)
 Fenv = 4; % Envelope Frequency
-
+%% Question A
 % When specifying frequencies for digital filters in Matlab, the frequencies
 % should be normalized by the Nyquist frequency. 
 % The cutoff frequency (for envelope ) has to adjusted upward by 25% in 2nd
@@ -27,7 +27,12 @@ Fenv = 4; % Envelope Frequency
 % will be the desired fco specified above. This 25% adjustment factor is 
 % correct for a 2nd order Butterworth; 
 % For a 4th order Butterworth used twice so multiply by 1.116.
+% The downsamplig phase needs to be after the filtering all the noise will
+% alias back in, raising the floor noise of the system. Even if there is no
+% noise, downsample before filtering will lead to aliasing from frequency
+% above the Nyquist rate.
 
+%% Code
 W = (1 / Fnyq) * [Freq1, Freq2];
 [B, A]  = butter(4, 1.116 * W, 'Bandpass'); % Bandpass filter
 
@@ -43,14 +48,15 @@ for i = 1:size(EMG_Test, 2)
     [b, a]  = butter(4, 1.116 * (Fenv/ Fnyq), 'low');   
     EMG{i} = filtfilt(b, a, plotting{i}); % Smooth by LPF: 4th order
     
+    %EMG_Acceleration{i} = EMG_Acceleration{i} - mean(EMG_Acceleration{i});
     EMG_ResultantAcc{i} = sqrt(sum(EMG_Acceleration{i}.^2')');
     
     figure('units','normalized','outerposition',[0 0 1 1])
     title('EMG Signal, Filtered and Rectified EMG Signal, Linear Envelope');
     grid;
    
-    t = (1:max(size(EMG{i})));
-    lim = max(size(t)) - 1000;
+    t = (1:max(size(EMG{i})))/Fs;
+    lim = (max(size(t)) - 1000)/Fs;
     % Top two plots and bottom one
     subplot(2,2,1); 
     plot(t, EMG_data, 'b')
