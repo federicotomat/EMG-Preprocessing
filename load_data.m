@@ -12,6 +12,8 @@ EMG_Acceleration = {Test1{1}.matrix(:,3:5) Test1{1}.matrix(:,5:end) Test2{1}.mat
 
 Fs = 2000; % Sampling Frequency 
 Ts = 1/Fs; % Sampling Interval 
+dFs = 1000; % Down sampled Frequency
+dsFactor = Fs / dFs; % Down sampling factor
 Fnyq = Fs/2; % Nyquist Frequency
 Freq1 = 30; % Passband Frequency, Hz (Lower)
 Freq2 = 450; % Passband Frequency, Hz (Upper)
@@ -73,7 +75,7 @@ for i = 1:size(EMG_Test, 2)
     subplot(2,2,[3 4]); 
     yyaxis left
     xlabel('Time (s)'); 
-    plot(downsample(t,4), downsample(EMG{i},4), 'LineWidth', 1.5);
+    plot(downsample(t, dsFactor), downsample(EMG{i},dsFactor), 'LineWidth', 1.5);
     ylim([-50 130])
     ylabel('EMG (\muV)');
     hold on
