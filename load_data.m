@@ -30,19 +30,20 @@ Fenv  = 4; % Envelope Frequency
 % For a 4th order Butterworth used twice so multiply by 1.116.
 
 W = (1 / Fnyq) * [Freq1, Freq2];
-[B, A]  = butter(4, 1.116 * W, 'Bandpass'); % Bandpass filter
+% [B, A]  = butter(4, 1.116 * W, 'Bandpass'); % Bandpass filter
+[B, A] = fir1(300, W);
 
 figure('units','normalized','outerposition',[0 0 1 1])
 title('Bode Plot of the Filter');
-freqz(B, A); % Filter Bode Plot
+freqz(B, A);
+% freqz(B, A); % Filter Bode Plot
 
 for i = 1:size(EMG_Test, 2)
     EMG_data = EMG_Test{i} - mean(EMG_Test{i}); % EMG Data, removing offset
     EMG_Filtered{i} = filtfilt(B, A, EMG_data); % Filter EMG
     rectified{i} = abs(EMG_Filtered{i}); % Rectify signal
-    plotting{i} = movmean(rectified{i}, 50);
-    [b, a]  = butter(4, 1.116 * (Fenv/ Fnyq), 'low');   
-    EMG{i} = filtfilt(b, a, plotting{i}); % Smooth by LPF: 4th order
+    [b, a] = butter(4, 1.116 * (Fenv/ Fnyq), 'low');   
+    EMG{i} = filtfilt(b, a, rectified{i}); % Smooth by LPF: 4th order
     
     %EMG_Acceleration{i} = EMG_Acceleration{i} - mean(EMG_Acceleration{i});
     EMG_ResultantAcc{i} = sqrt(sum(EMG_Acceleration{i}.^2')');
@@ -76,11 +77,12 @@ for i = 1:size(EMG_Test, 2)
     legend('EMG rectified', 'Linear envelope');   
     
     dsFactor = round(Fs / dFs); % Down sampling factor
+    EMG_downsampled{i} = downsample(EMG{i},dsFactor); 
     
     subplot(2,2,[3 4]); 
     yyaxis left
     xlabel('Time (s)'); 
-    plot(downsample(t, dsFactor), downsample(EMG{i},dsFactor), 'LineWidth', 1.5);
+    plot(downsample(t, dsFactor), EMG_downsampled{i}, 'LineWidth', 1.5);
     ylim([-50 130])
     ylabel('EMG (\muV)');
     hold on
