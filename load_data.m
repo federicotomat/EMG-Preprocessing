@@ -31,7 +31,7 @@ Fenv  = 4; % Envelope Frequency
 
 W = (1 / Fnyq) * [Freq1, Freq2];
 % [B, A]  = butter(4, 1.116 * W, 'Bandpass'); % Bandpass filter
-[B, A] = fir1(300, W);
+[B, A] = fir1(275, W);
 
 figure('units','normalized','outerposition',[0 0 1 1])
 title('Bode Plot of the Filter');
@@ -46,7 +46,7 @@ for i = 1:size(EMG_Test, 2)
     EMG{i} = filtfilt(b, a, rectified{i}); % Smooth by LPF: 4th order
     
     %EMG_Acceleration{i} = EMG_Acceleration{i} - mean(EMG_Acceleration{i});
-    EMG_ResultantAcc{i} = sqrt(sum(EMG_Acceleration{i}.^2')');
+    EMG_ResultantAcc{i} = sqrt(sum((50*EMG_Acceleration{i}).^2')');
     
     figure('units','normalized','outerposition',[0 0 1 1])
     title('EMG Signal, Filtered and Rectified EMG Signal, Linear Envelope');
@@ -82,7 +82,7 @@ for i = 1:size(EMG_Test, 2)
     subplot(2,2,[3 4]); 
     yyaxis left
     xlabel('Time (s)'); 
-    plot(downsample(t, dsFactor), EMG_downsampled{i}, 'LineWidth', 1.5);
+    plot(downsample(t, dsFactor), EMG_downsampled{i}, 'LineWidth', 1.05);
     ylim([-50 130])
     ylabel('EMG (\muV)');
     hold on
@@ -90,8 +90,8 @@ for i = 1:size(EMG_Test, 2)
     ylabel('Acceleration (m/s^2)')
     xlabel('Time(s)'); 
     xlim([0 lim]);
-    plot(t, EMG_ResultantAcc{i}, 'b');
-    ylim([0 4])
+    plot(t, EMG_ResultantAcc{i}, 'LineWidth', 1.05);
+    %ylim([0 4])
     hold off
     legend('Linear envelope', 'Acceleration');    
 end
