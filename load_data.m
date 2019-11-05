@@ -10,15 +10,16 @@ Test2 = struct2cell(load('Test2.mat'));
 EMG_Test = {Test1{1}.matrix(:,1) Test1{1}.matrix(:,2) Test2{1}.matrix(:,1)};
 EMG_Acceleration = {Test1{1}.matrix(:,3:5) Test1{1}.matrix(:,5:end) Test2{1}.matrix(:,2:end)};
 
-Fs = 2000; % Sampling Frequency 
-Ts = 1/Fs; % Sampling Interval 
-dFs = 900; % Down sampled Frequency
-dsFactor = round(Fs / dFs); % Down sampling factor
-Fnyq = Fs/2; % Nyquist Frequency
+% Parameters
+Fs    = 2000; % Sampling Frequency 
+Ts    = 1/Fs; % Sampling Interval 
+dFs   = 500; % Down sampled Frequency
+Fnyq  = Fs/2; % Nyquist Frequency
 Freq1 = 30; % Passband Frequency, Hz (Lower)
 Freq2 = 450; % Passband Frequency, Hz (Upper)
-Fenv = 4; % Envelope Frequency
-%% Question A
+Fenv  = 4; % Envelope Frequency
+
+% Filters Note:
 % When specifying frequencies for digital filters in Matlab, the frequencies
 % should be normalized by the Nyquist frequency. 
 % The cutoff frequency (for envelope ) has to adjusted upward by 25% in 2nd
@@ -27,12 +28,7 @@ Fenv = 4; % Envelope Frequency
 % will be the desired fco specified above. This 25% adjustment factor is 
 % correct for a 2nd order Butterworth; 
 % For a 4th order Butterworth used twice so multiply by 1.116.
-% The downsamplig phase needs to be after the filtering all the noise will
-% alias back in, raising the floor noise of the system. Even if there is no
-% noise, downsample before filtering will lead to aliasing from frequency
-% above the Nyquist rate.
 
-%% Code
 W = (1 / Fnyq) * [Freq1, Freq2];
 [B, A]  = butter(4, 1.116 * W, 'Bandpass'); % Bandpass filter
 
@@ -57,6 +53,7 @@ for i = 1:size(EMG_Test, 2)
    
     t = (1:max(size(EMG{i})))/Fs;
     lim = (max(size(t)) - 1000)/Fs;
+    
     % Top two plots and bottom one
     subplot(2,2,1); 
     plot(t, EMG_data, 'b')
@@ -78,6 +75,8 @@ for i = 1:size(EMG_Test, 2)
     ylabel('EMG (\muV)');
     legend('EMG rectified', 'Linear envelope');   
     
+    dsFactor = round(Fs / dFs); % Down sampling factor
+    
     subplot(2,2,[3 4]); 
     yyaxis left
     xlabel('Time (s)'); 
@@ -92,7 +91,14 @@ for i = 1:size(EMG_Test, 2)
     plot(t, EMG_ResultantAcc{i}, 'b');
     ylim([0 4])
     hold off
-    legend('Linear envelope', 'Acceleration'); 
-    
+    legend('Linear envelope', 'Acceleration');    
 end
 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - %
+% - - - - - - - -  - - - - - - QUESTION A - - - - - - - - - - - - - - - - %
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - %
+
+% The downsamplig phase needs to be after the filtering all the noise will
+% alias back in, raising the floor noise of the system. Even if there is no
+% noise, downsample before filtering will lead to aliasing from frequency
+% above the Nyquist rate.
