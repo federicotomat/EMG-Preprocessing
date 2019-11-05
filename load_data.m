@@ -46,36 +46,42 @@ for i = 1:size(EMG_Test, 2)
     figure('units','normalized','outerposition',[0 0 1 1])
     title('EMG Signal, Filtered and Rectified EMG Signal, Linear Envelope');
     grid;
+   
+    t = (1:max(size(EMG{i})));
+    lim = max(size(t)) - 1000;
     % Top two plots and bottom one
     subplot(2,2,1); 
-    plot(EMG_data, 'b')
+    plot(t, EMG_data, 'b')
     hold on
-    plot(EMG_Filtered{i} , 'r')
+    plot(t, EMG_Filtered{i} , 'r')
     hold off
     xlabel('Time (s)'); 
+    xlim([0 lim]);
     ylabel('EMG (\muV)');
     legend('EMG signal', 'EMG filtered');
         
     subplot(2,2,2); 
-    plot(rectified{i}, 'g')
+    plot(t, rectified{i}, 'g')
     hold on
-    plot(EMG{i}, 'r');
+    plot(t, EMG{i}, 'r');
     hold off
     xlabel('Time (s)'); 
+    xlim([0 lim]);
     ylabel('EMG (\muV)');
     legend('EMG rectified', 'Linear envelope');   
     
     subplot(2,2,[3 4]); 
     yyaxis left
     xlabel('Time (s)'); 
-    plot(EMG{i}, 'LineWidth', 1.5);
+    plot(downsample(t,4), downsample(EMG{i},4), 'LineWidth', 1.5);
     ylim([-50 130])
     ylabel('EMG (\muV)');
     hold on
     yyaxis right
     ylabel('Acceleration (m/s^2)')
     xlabel('Time(s)'); 
-    plot(EMG_ResultantAcc{i}, 'b');
+    xlim([0 lim]);
+    plot(t, EMG_ResultantAcc{i}, 'b');
     ylim([0 4])
     hold off
     legend('Linear envelope', 'Acceleration'); 
